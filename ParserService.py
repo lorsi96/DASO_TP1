@@ -105,6 +105,8 @@ if __name__ == '__main__':
         input('')
     except KeyboardInterrupt as e:
         logging.info('Terminando el programa por interrupción de teclado')
+    except Exception as e:
+        logging.error('Terminando el programa por un error inesperado')
     else:
         logging.info('Terminando programa normalmente')
     finally:
