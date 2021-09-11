@@ -1,6 +1,3 @@
-
-from functools import reduce
-
 class Moneda:
     def __init__(self, id='0', name='?', val_compra=0, val_venta=0) -> None:
         self._id = id
@@ -11,14 +8,11 @@ class Moneda:
     @classmethod
     def from_csv_entry(cls, val:str):
         try:
-            id, name, val_compra ,val_venta = val.split(',')
+            id, name, val_compra, val_venta = val.split(',')
             return cls(int(id), name, float(val_compra) ,float(val_venta))
-        except Exception as e:
-            print(e)
+        except ValueError as e:
+            raise ValueError('Error al parsear entrada de CSV de moneda: ({})'.format(val.replace("\n", "")))
 
-    def serialize_csv(self):
-        return f'{self._id},{self._name},{self._val_compra},{self._val_venta}'
-    
     def as_dict(self):
         return {
             'id':self._id,
@@ -26,6 +20,9 @@ class Moneda:
             'value2':self._val_venta,
             'name':self._name,
         }
+
+    def serialize_csv(self):
+        return f'{self._id},{self._name},{self._val_compra},{self._val_venta}'
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Moneda):

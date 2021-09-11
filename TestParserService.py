@@ -21,7 +21,7 @@ class TestParserService(unittest.TestCase):
         self.cambiosfile.seek(0)
         self.cfgfile.write(self.cambiosfile.name.encode())
         self.cfgfile.seek(0)
-        self.parser_service = ParserService(self.cfgfile.name, self.client)
+        self.parser_service = ParserService(0., self.cfgfile.name, self.client)
     
 
     def test_leer_monedas(self):
