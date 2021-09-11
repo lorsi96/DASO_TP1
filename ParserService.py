@@ -1,13 +1,15 @@
-from Moneda import Moneda
-from Cliente import Cliente, ClienteUdp
+import json
+import logging
 
 from threading import Timer
-import json
+from Moneda import Moneda
+from Cliente import Cliente, ClienteUdp
 
 class ParserService():
     DATA_START_IND = 1
 
-    def __init__(self, report_period_s=1., cfgpath='./files/config.txt', cliente:Cliente=ClienteUdp()) -> None:
+    def __init__(self, report_period_s=30., cfgpath='./files/config.txt', cliente:Cliente=ClienteUdp()) -> None:
+        logging.basicConfig(format='(%(levelname)s) %(asctime)s: %(message)s', level = logging.DEBUG)
         self._cliente = cliente
         self._monedas = []
         self._period = report_period_s
@@ -28,11 +30,12 @@ class ParserService():
         self._cliente.send(self._serializar_monedas_json())
     
     def start(self):
-        self.timer.start()
+        self.__timer_cb()
 
     def stop(self):
         self.timer.cancel()
         self._cliente.close()
+        logging.info('Stopping Application')
     
     def spin(self):
         self._leer_monedas()
@@ -46,10 +49,16 @@ class ParserService():
         
 
 if __name__ == '__main__':
-    ps = ParserService()
-    ps.start()
-    input('Press Enter To Finish')
-    ps.stop()
+
+    try:
+        ps = ParserService(1.)
+        ps.start()
+        input('Press Enter To Finish\n')
+    except KeyboardInterrupt as e:
+        logging.warning('Interrupción por Teclado')
+        pass
+    finally:
+        ps.stop()
     
 
 

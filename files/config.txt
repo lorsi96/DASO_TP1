@@ -1,1 +1,1 @@
-/home/lorsi/Documents/CESE/DASOPG/files/cambios.csv
+./files/cambios.csv
