@@ -1,6 +1,6 @@
 import unittest
 
-from Moneda import Moneda
+from currencylib.moneda import Moneda
 
 class TestMoneda(unittest.TestCase):
 

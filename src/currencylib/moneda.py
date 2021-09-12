@@ -17,7 +17,7 @@ class Moneda:
             raise ValueError('Error al parsear entrada de CSV de moneda: ({})'.format(val.replace("\n", "")))
 
     def as_dict(self) -> dict:
-        '''Obtiene una representación de forma de diccionario de la moneda'''
+        '''Obtiene una representación en forma de diccionario de la moneda'''
         return {
             'id':self._id,
             'value1':self._val_compra,

@@ -8,8 +8,8 @@ Inicializar:
 La forma más simple de inicializar ambos es la siguiente:
 
 ```bash
-python3 PizarraService.py  8080
-python3 ParserService.py  --port 8080
+python3 src/PizarraService.py  8080
+python3 src/ParserService.py  --port 8080
 ```
 
 ### ParserService

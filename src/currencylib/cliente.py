@@ -23,7 +23,7 @@ class Cliente(ABC):
 #                                               Concrete Implementations                                               #
 # ******************************************************************************************************************** #
 class ClienteUdp(Cliente):
-    def __init__(self, ip='127.0.1', port=8081, buffsize=1024, timeout=0.5) -> None:
+    def __init__(self, ip='localhost', port=8081, buffsize=1024, timeout=0.5) -> None:
         self._ip = ip 
         self._port = port
         self._buffsize = buffsize

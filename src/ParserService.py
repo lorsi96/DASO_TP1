@@ -3,22 +3,22 @@ import logging
 import argparse
 
 from threading import Timer
-from Moneda import Moneda
-from Cliente import Cliente, ClienteUdp, ServerUnavailableError 
+from currencylib.moneda import Moneda
+from currencylib.cliente import Cliente, ClienteUdp, ServerUnavailableError 
 
 class ParserService():
-    DATA_START_IND = 1
+    CSV_SKIP_HEADER = 1  # From where to start reading data from the .csv
 
     def __init__(self, report_period_s=30., cfgpath='./files/config.txt', cliente:Cliente=ClienteUdp()) -> None:
-        self._monedas = []
-        self._cliente = cliente
+        self._currencies = []
+        self._client = cliente
         self._period = report_period_s
-        self.timer = Timer(self._period, self.__timer_cb)
+        self._timer = Timer(self._period, self.__timer_cb)
 
         try:
             with open(cfgpath, 'r') as f:
                 self._data_path = f.read()
-                logging.debug(f'Archivo de configuración encontrado: ({self._data_path})')
+                logging.debug(f'Archivo de configuración encontrado, el csv está en: ({self._data_path})')
         except FileNotFoundError:
             raise FileNotFoundError(f'Archivo de configuración no encontrado en "{cfgpath})"')
     
@@ -28,38 +28,40 @@ class ParserService():
 
     def stop(self):
         logging.debug(f'Finalizando comunicación con servidor')
-        self.timer.cancel()
-        self._cliente.close()
+        self._timer.cancel()
+        self._client.close()
 
-    def _leer_monedas(self):
+    def _read_currencies(self):
         try:
             with open(self._data_path, 'r') as f:
-                lineas_monedas = f.readlines()[self.DATA_START_IND:]
-                self._monedas = [Moneda.from_csv_entry(e) for e in lineas_monedas]
+                currencies_str_lines = f.readlines()[self.CSV_SKIP_HEADER:]
+                self._currencies = [Moneda.from_csv_entry(e) for e in currencies_str_lines]
         except FileNotFoundError:
             raise FileNotFoundError(f'CSV de tipos de cambio no encontrado en "{self._data_path})"')
         except ValueError:
             raise ValueError('Error al parsear monedas')
     
-    def _serializar_monedas_json(self):
+    def _serialize_currencies_json(self):
         try:
-            return json.dumps([moneda.as_dict() for moneda in self._monedas])
+            return json.dumps([moneda.as_dict() for moneda in self._currencies])
         except Exception:
             raise ValueError('Error al convertir monedas en .json')
     
-    def _enviar_monedas(self):
-        logging.debug(f'Envíando tipos de cambio al servidor')
+    def _send_currencies(self):
+        logging.debug(f'Enviando tipos de cambio al servidor')
         try:
-            self._cliente.send(self._serializar_monedas_json())
+            self._client.send(self._serialize_currencies_json())
         except ServerUnavailableError:
             logging.warning('El servidor no está disponible')
 
-    def __timer_cb(self):
-        self._leer_monedas()
-        self._enviar_monedas()
-        self.timer.cancel()
-        self.timer = Timer(self._period, self.__timer_cb)
-        self.timer.start()
+    def __timer_cb(self): 
+        # Read and send currencies.
+        self._read_currencies()
+        self._send_currencies()
+        
+        # Reset timer.
+        self._timer = Timer(self._period, self.__timer_cb)
+        self._timer.start()
         
 # ******************************************************************************************************************** #
 #                                                  Command Line Parser                                                 #
